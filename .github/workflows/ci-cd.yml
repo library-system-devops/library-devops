@@ -80,7 +80,7 @@ jobs:
             echo "Directory structure:"
             ls -R ~/library-system
             echo "Docker compose file contents:"
-            cat ~/library-system/docker-compose.yml
+            cat ~/library-system/library-devops/docker-compose.yml
 
       - name: Deploy
         uses: appleboy/ssh-action@master
