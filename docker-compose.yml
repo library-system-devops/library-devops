@@ -24,8 +24,8 @@ services:
 
   backend:
     build:
-      context: ../backend
-      dockerfile: ../backend/library-backend/Dockerfile
+      context: ../library-backend/
+      dockerfile: ../library-backend/Dockerfile
     container_name: library-backend
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/library_system
@@ -43,8 +43,8 @@ services:
 
   frontend:
     build:
-      context: ../frontend
-      dockerfile: ../frontend/library-backend/Dockerfile
+      context: ../library-frontend/
+      dockerfile: ../library-frontend/Dockerfile
     container_name: library-frontend
     ports:
       - "80:80"

@@ -47,7 +47,7 @@ jobs:
           username: ${{ secrets.GCP_SSH_USERNAME }}
           key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
           source: "library-frontend/."
-          target: "/home/${{ secrets.GCP_SSH_USERNAME }}/library-system/frontend"
+          target: "/home/${{ secrets.GCP_SSH_USERNAME }}/library-system"
           overwrite: true
 
       - name: Copy Backend files
@@ -57,7 +57,7 @@ jobs:
           username: ${{ secrets.GCP_SSH_USERNAME }}
           key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
           source: "library-backend/."
-          target: "/home/${{ secrets.GCP_SSH_USERNAME }}/library-system/backend"
+          target: "/home/${{ secrets.GCP_SSH_USERNAME }}/library-system"
           overwrite: true
 
       - name: Copy Docker Compose file
