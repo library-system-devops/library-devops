@@ -39,7 +39,7 @@ services:
       - "8080:8080"
     networks:
       - library-network
-    entrypoint: [ "./library-backend/wait-for-it.sh", "mysql:3306", "--", "java", "-jar", "app.jar" ]
+    entrypoint: [ "../library-backend/wait-for-it.sh", "mysql:3306", "--", "java", "-jar", "app.jar" ]
 
   frontend:
     build:
