@@ -115,20 +115,3 @@ jobs:
             # Run Docker Compose with the correct path to the config file
             docker compose --env-file ~/library-system/.env -f ~/library-system/library-devops/docker-compose.yml down -v || true
             docker compose --env-file ~/library-system/.env -f ~/library-system/library-devops/docker-compose.yml up -d --build
-
-      - name: Verify Deployment
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.GCP_VM_IP }}
-          username: ${{ secrets.GCP_SSH_USERNAME }}
-          key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
-          script: |
-            cd ~/library-system
-            echo "Docker Containers:"
-            docker ps -a
-            echo "Docker Networks:"
-            docker network ls
-            echo "Docker Volumes:"
-            docker volume ls
-            echo "Docker Compose Logs:"
-            docker compose logs
