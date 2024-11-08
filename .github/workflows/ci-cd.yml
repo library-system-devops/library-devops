@@ -98,14 +98,23 @@ jobs:
             echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
             echo "JWT_EXPIRATION=${{ secrets.JWT_EXPIRATION }}" >> .env
             
+            # Debug: Check current directory and list files
+            echo "Current directory:"
+            pwd
             echo "Contents of deployment directory:"
             ls -la
             echo "Contents of .env file:"
             cat .env
             
-            # Try Docker Compose
-            docker compose down -v || true
-            docker compose up -d --build
+            # Ensure docker-compose.yml exists in the correct location
+            if [ ! -f ~/library-system/library-devops/docker-compose.yml ]; then
+              echo "ERROR: docker-compose.yml not found in ~/library-system/library-devops/"
+              exit 1
+            fi
+            
+            # Run Docker Compose with the correct path to the config file
+            docker compose -f ~/library-system/library-devops/docker-compose.yml down -v || true
+            docker compose -f ~/library-system/library-devops/docker-compose.yml up -d --build
 
       - name: Verify Deployment
         uses: appleboy/ssh-action@master
