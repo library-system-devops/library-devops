@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: library-db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: library_system
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./initial_setup.sql:/docker-entrypoint-initdb.d/initial_setup.sql
+    ports:
+      - "3306:3306"
+    networks:
+      - library-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./library-backend
+      dockerfile: Dockerfile
+    container_name: library-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/library_system
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    networks:
+      - library-network
+
+  frontend:
+    build:
+      context: ./library-frontend
+      dockerfile: Dockerfile
+    container_name: library-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - library-network
+
+networks:
+  library-network:
+    driver: bridge
+
+volumes:
+  mysql-data:

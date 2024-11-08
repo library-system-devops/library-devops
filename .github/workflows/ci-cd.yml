@@ -1,0 +1,67 @@
+name: Deploy Library System
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+      MYSQL_USER: ${{ secrets.MYSQL_USER }}
+      MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      JWT_EXPIRATION: ${{ secrets.JWT_EXPIRATION }}
+      GCP_VM_IP: ${{ secrets.GCP_VM_IP }}
+      GCP_SSH_PRIVATE_KEY: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
+      GCP_SSH_USERNAME: ${{ secrets.GCP_SSH_USERNAME }}
+
+    steps:
+      - name: Checkout DevOps repository
+        uses: actions/checkout@v2
+        with:
+          path: library-devops
+
+      - name: Checkout Frontend repository
+        uses: actions/checkout@v2
+        with:
+          repository: library-system-devops/library-frontend
+          path: library-frontend
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Checkout Backend repository
+        uses: actions/checkout@v2
+        with:
+          repository: library-system-devops/library-backend
+          path: library-backend
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.GCP_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.GCP_VM_IP }} >> ~/.ssh/known_hosts
+
+      - name: Copy files to VM
+        run: |
+          scp -r library-*/Dockerfile ${{ secrets.GCP_SSH_USERNAME }}@${{ secrets.GCP_VM_IP }}:/home/${{ secrets.GCP_SSH_USERNAME }}/library-system/
+          scp library-frontend/nginx.conf ${{ secrets.GCP_SSH_USERNAME }}@${{ secrets.GCP_VM_IP }}:/home/${{ secrets.GCP_SSH_USERNAME }}/library-system/
+          scp library-devops/docker-compose.yml ${{ secrets.GCP_SSH_USERNAME }}@${{ secrets.GCP_VM_IP }}:/home/${{ secrets.GCP_SSH_USERNAME }}/library-system/
+          scp library-backend/initial_setup.sql ${{ secrets.GCP_SSH_USERNAME }}@${{ secrets.GCP_VM_IP }}:/home/${{ secrets.GCP_SSH_USERNAME }}/library-system/
+          scp -r library-frontend/src ${{ secrets.GCP_SSH_USERNAME }}@${{ secrets.GCP_VM_IP }}:/home/${{ secrets.GCP_SSH_USERNAME }}/library-system/frontend/
+          scp library-frontend/package*.json ${{ secrets.GCP_SSH_USERNAME }}@${{ secrets.GCP_VM_IP }}:/home/${{ secrets.GCP_SSH_USERNAME }}/library-system/frontend/
+          scp -r library-backend/src ${{ secrets.GCP_SSH_USERNAME }}@${{ secrets.GCP_SSH_USERNAME }}@${{ secrets.GCP_VM_IP }}:/home/${{ secrets.GCP_SSH_USERNAME }}/library-system/backend/
+          scp library-backend/pom.xml ${{ secrets.GCP_SSH_USERNAME }}@${{ secrets.GCP_VM_IP }}:/home/${{ secrets.GCP_SSH_USERNAME }}/library-system/backend/
+
+      - name: Deploy using Docker Compose
+        run: |
+          ssh ${{ secrets.GCP_SSH_USERNAME }}@${{ secrets.GCP_VM_IP }} "cd /home/${{ secrets.GCP_SSH_USERNAME }}/library-system && \
+          echo 'MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}' > .env && \
+          echo 'MYSQL_USER=${{ secrets.MYSQL_USER }}' >> .env && \
+          echo 'MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}' >> .env && \
+          echo 'JWT_SECRET=${{ secrets.JWT_SECRET }}' >> .env && \
+          echo 'JWT_EXPIRATION=${{ secrets.JWT_EXPIRATION }}' >> .env && \
+          docker-compose down && \
+          docker-compose up -d --build"
