@@ -32,8 +32,8 @@ The Library Management System consists of three main components:
                            │  GitHub Actions │
                            │    Workflow     │
                            └────────┬────────┘
-                                   │
-                                   ▼
+                                    │
+                                    ▼
 ┌─────────────────┐      ┌─────────────────┐      ┌─────────────────┐
 │    Frontend     │      │    Backend      │      │     MySQL       │
 │    Container    │──────│    Container    │──────│    Container    │
