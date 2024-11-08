@@ -24,7 +24,7 @@ services:
 
   backend:
     build:
-      context: ./library-backend
+      context: ./backend
       dockerfile: Dockerfile
     container_name: library-backend
     environment:
@@ -43,7 +43,7 @@ services:
 
   frontend:
     build:
-      context: ./library-frontend
+      context: ./frontend
       dockerfile: Dockerfile
     container_name: library-frontend
     ports:

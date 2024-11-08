@@ -113,8 +113,8 @@ jobs:
             fi
             
             # Run Docker Compose with the correct path to the config file
-            docker compose -f ~/library-system/library-devops/docker-compose.yml down -v || true
-            docker compose -f ~/library-system/library-devops/docker-compose.yml up -d --build
+            docker compose --env-file ~/library-system/.env -f ~/library-system/library-devops/docker-compose.yml down -v || true
+            docker compose --env-file ~/library-system/.env -f ~/library-system/library-devops/docker-compose.yml up -d --build
 
       - name: Verify Deployment
         uses: appleboy/ssh-action@master
