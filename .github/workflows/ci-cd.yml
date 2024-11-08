@@ -113,5 +113,5 @@ jobs:
             fi
             
             # Run Docker Compose with the correct path to the config file
-            docker compose --env-file ~/library-system/.env -f ~/library-system/library-devops/docker-compose.yml down -v || true
+            docker compose --env-file ~/library-system/.env -f ~/library-system/library-devops/docker-compose.yml down || true
             docker compose --env-file ~/library-system/.env -f ~/library-system/library-devops/docker-compose.yml up -d --build

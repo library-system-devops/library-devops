@@ -11,13 +11,13 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - mysql-data:/var/lib/mysql
-      - ../library-backend/initial_setup.sql:/docker-entrypoint-initdb.d/initial_setup.sql
+      - ./initialize-db.sh:/docker-entrypoint-initdb.d/initialize-db.sh
     ports:
       - "3306:3306"
     networks:
       - library-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       interval: 10s
       timeout: 5s
       retries: 5
